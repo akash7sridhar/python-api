@@ -1,6 +1,27 @@
 from fastapi import FastAPI
+from fastapi.params import Body
+from pydantic import BaseModel
 
 app = FastAPI()
+
+@app.get("/") # noqa
+def first():
+    return {"message": "We are Healthy"}
+
+@app.post("/create") # noqa
+def create(payLoad: dict = Body(...)):
+    return {"Created": f"title {payLoad['title']} content: {payLoad['content']}"} # noqa
+
+# Post request using pydantic to do validation
+class Post(BaseModel):  # noqa
+    title: str
+    content: str
+
+@app.post("/createpost") # noqa
+def create_post(new_post: Post):
+    print(new_post.title)
+    return {"Created"} # noqa
+
 
 @app.get("/hello/{name}") # noqa
 def hello(name: str):
