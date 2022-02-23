@@ -1,12 +1,29 @@
+from random import randrange
 from fastapi import FastAPI
 from fastapi.params import Body
 from pydantic import BaseModel
 
 app = FastAPI()
 
+my_posts = [{"title": "title of Post 1", "content": "content of post 1", "id": 1}, {"title": "title of Post 2", "content": "content of post 2", "id": 2}] # noqa
+
 @app.get("/") # noqa
 def first():
     return {"message": "We are Healthy"}
+
+@app.get("/posts") # noqa
+def get_posts():
+    return{"data": my_posts}
+
+def find_post(id): # noqa
+    for p in my_posts:
+        if p['id'] == id:
+            return p
+
+@app.get("/posts/{id}") # noqa
+def get_posts_by_id(id: int):
+    post = find_post(id)
+    return{"data": post}
 
 @app.post("/create") # noqa
 def create(payLoad: dict = Body(...)):
@@ -17,10 +34,12 @@ class Post(BaseModel):  # noqa
     title: str
     content: str
 
-@app.post("/createpost") # noqa
-def create_post(new_post: Post):
-    print(new_post.title)
-    return {"Created"} # noqa
+@app.post("/posts") # noqa
+def create_post(post: Post):
+    post_dict = post.dict()
+    post_dict['id'] = randrange(0, 1000000)
+    my_posts.append(post_dict)
+    return {"Created" : post_dict} # noqa
 
 
 @app.get("/hello/{name}") # noqa
